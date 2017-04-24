@@ -1,13 +1,10 @@
 package admin.com.testandosqllite;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,38 +12,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        try {
+            SQLiteDatabase db = openOrCreateDatabase("MeuApp", MODE_PRIVATE, null);
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS cadastropessoas (nome VARCHAR, idade INT(3))");
+
+            db.execSQL("INSERT INTO cadastropessoas (nome, idade) VALUES ('Um nome legal', 20)");
+            db.execSQL("INSERT INTO cadastropessoas (nome, idade) VALUES ('Um nome legal pra caramba', 22)");
+            db.execSQL("INSERT INTO cadastropessoas (nome, idade) VALUES ('Um nome legal mesmo', 10)");
+
+            Cursor cursor = db.rawQuery("SELECT nome, idade FROM cadastropessoas", null);
+
+            int indiceNome = cursor.getColumnIndex("nome");
+            int indiceIdade = cursor.getColumnIndex("idade");
+
+            cursor.moveToFirst();
+
+            while(cursor != null) {
+                Log.i("LogX", cursor.getString(indiceNome));
+                Log.i("LogX", cursor.getString(indiceIdade));
+                cursor.moveToNext();
             }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }
